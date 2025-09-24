@@ -164,29 +164,60 @@
                         
                         const data = await response.json();
                         
-                        let position = '';
-                        if (lowerQ.includes('quarterback') || lowerQ.includes('qb')) position = 'QB';
-                        if (lowerQ.includes('running back') || lowerQ.includes('rb')) position = 'RB';  
-                        if (lowerQ.includes('wide receiver') || lowerQ.includes('wr')) position = 'WR';
+                        let targetPositions = [];
+                        let positionName = '';
                         
-                        const players = data.athletes.filter(player => 
-                            player.position && player.position.abbreviation === position
-                        );
+                        if (lowerQ.includes('quarterback') || lowerQ.includes('qb')) {
+                            targetPositions = ['QB', 'Quarterback'];
+                            positionName = 'quarterback';
+                        }
+                        if (lowerQ.includes('running back') || lowerQ.includes('rb')) {
+                            targetPositions = ['RB', 'Running Back', 'HB', 'Halfback', 'FB', 'Fullback'];
+                            positionName = 'running back';
+                        }
+                        if (lowerQ.includes('wide receiver') || lowerQ.includes('wr')) {
+                            targetPositions = ['WR', 'Wide Receiver'];
+                            positionName = 'wide receiver';
+                        }
+                        
+                        // More flexible position matching
+                        const players = data.athletes.filter(player => {
+                            if (!player.position) return false;
+                            
+                            const playerPos = player.position.abbreviation || player.position.name || '';
+                            return targetPositions.some(pos => 
+                                playerPos.toUpperCase().includes(pos.toUpperCase()) ||
+                                pos.toUpperCase().includes(playerPos.toUpperCase())
+                            );
+                        });
                         
                         if (players.length > 0) {
                             const teamName = data.team.displayName;
-                            if (position === 'QB') {
+                            
+                            if (positionName === 'quarterback') {
                                 const starter = players.find(p => p.starter) || players[0];
-                                return `${starter.fullName} is the starting quarterback for the ${teamName}. He wears jersey #${starter.jersey}.`;
-                            } else if (position === 'RB') {
-                                const backs = players.slice(0, 3).map(p => `${p.fullName} (#${p.jersey})`);
+                                return `${starter.fullName} is the starting quarterback for the ${teamName}. He wears jersey #${starter.jersey || 'N/A'}.`;
+                            } else if (positionName === 'running back') {
+                                const backs = players.slice(0, 3).map(p => 
+                                    `${p.fullName} (#${p.jersey || 'N/A'})`
+                                );
                                 return `The ${teamName}'s running backs include: ${backs.join(', ')}.`;
-                            } else if (position === 'WR') {
-                                const receivers = players.slice(0, 4).map(p => `${p.fullName} (#${p.jersey})`);
+                            } else if (positionName === 'wide receiver') {
+                                const receivers = players.slice(0, 4).map(p => 
+                                    `${p.fullName} (#${p.jersey || 'N/A'})`
+                                );
                                 return `The ${teamName}'s wide receivers include: ${receivers.join(', ')}.`;
                             }
                         } else {
-                            return `I found the ${data.team.displayName} roster but couldn't locate ${position} players. This might be due to how the data is structured. You can check the full roster at ESPN.com.`;
+                            // Fallback: try to get some player info to show the API is working
+                            if (data.athletes && data.athletes.length > 0) {
+                                const samplePositions = data.athletes.slice(0, 5).map(p => 
+                                    p.position ? (p.position.abbreviation || p.position.name) : 'Unknown'
+                                ).join(', ');
+                                return `I found the ${data.team.displayName} roster with ${data.athletes.length} players, but I'm having trouble finding ${positionName}s. The available positions include: ${samplePositions}. For the complete roster, check ESPN.com.`;
+                            } else {
+                                return `I'm having trouble accessing the ${data.team ? data.team.displayName : team.name} roster right now. Please try again or check ESPN.com for current roster information.`;
+                            }
                         }
                     }
 
@@ -396,7 +427,7 @@
                 activeTab === 'resources' && renderResourcesTab(),
 
                 e('div', { className: 'p-6 text-center text-gray-500 text-sm' },
-                    'V16 Made with ❤️ to help Jackie enjoy football with the family'
+                    'V17 Made with ❤️ to help Jackie enjoy football with the family'
                 )
             );
         }
