@@ -199,48 +199,118 @@
                 "players": "Each team has 11 players on the field at any time. The total roster can have up to 53 players, but only 11 from each team are allowed on the field during any play."
             };
 
+            const teamNameToId = {
+                'jets': '20', 'chiefs': '12', 'cowboys': '6', 'bills': '2', 'packers': '9',
+                'patriots': '17', 'steelers': '23', 'ravens': '33', 'browns': '5',
+                'bengals': '4', 'titans': '10', 'colts': '11', 'jaguars': '30',
+                'texans': '34', 'broncos': '7', 'chargers': '24', 'raiders': '13',
+                'dolphins': '15', 'giants': '19', 'eagles': '21', 'commanders': '28',
+                'bears': '3', 'lions': '8', 'vikings': '16', 'cardinals': '22',
+                'rams': '14', 'seahawks': '26', 'niners': '25', '49ers': '25',
+                'saints': '18', 'falcons': '1', 'panthers': '29', 'bucs': '27',
+                'buccaneers': '27'
+            };
+
+            const getTeamFromQuestion = (question) => {
+                const lowerQ = question.toLowerCase();
+                for (const [teamName, teamId] of Object.entries(teamNameToId)) {
+                    if (lowerQ.includes(teamName)) {
+                        return { name: teamName, id: teamId };
+                    }
+                }
+                return null;
+            };
+
             const searchNFLInfo = async (question) => {
                 try {
-                    const searchQuery = extractSearchTerms(question);
-                    
-                    // This would make an actual API call to search for NFL information
-                    // For now, we'll provide specific responses for common questions
                     const lowerQ = question.toLowerCase();
-                    
-                    // Team-specific QB questions
-                    if (lowerQ.includes('quarterback') || lowerQ.includes('qb')) {
-                        if (lowerQ.includes('chiefs')) return "Patrick Mahomes is the starting quarterback for the Kansas City Chiefs. He's been their starter since 2018, won Super Bowl MVP in both 2020 and 2023, and is widely considered one of the best QBs in the league.";
-                        if (lowerQ.includes('cowboys')) return "Dak Prescott is the starting quarterback for the Dallas Cowboys. He's been with the team since 2016 and signed a big contract extension in 2021.";
-                        if (lowerQ.includes('bills')) return "Josh Allen is the starting quarterback for the Buffalo Bills. He's known for his strong arm and has led the Bills to multiple playoff appearances.";
-                        if (lowerQ.includes('packers')) return "Jordan Love is the starting quarterback for the Green Bay Packers, taking over from Aaron Rodgers who moved to the New York Jets.";
+                    const team = getTeamFromQuestion(question);
+
+                    // Handle team-specific roster questions
+                    if (team && (lowerQ.includes('quarterback') || lowerQ.includes('qb') || 
+                                lowerQ.includes('running back') || lowerQ.includes('rb') ||
+                                lowerQ.includes('wide receiver') || lowerQ.includes('wr'))) {
+                        
+                        try {
+                            const response = await fetch(`https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/${team.id}/roster`);
+                            const data = await response.json();
+                            
+                            let position = '';
+                            if (lowerQ.includes('quarterback') || lowerQ.includes('qb')) position = 'QB';
+                            if (lowerQ.includes('running back') || lowerQ.includes('rb')) position = 'RB';
+                            if (lowerQ.includes('wide receiver') || lowerQ.includes('wr')) position = 'WR';
+                            
+                            const players = data.athletes.filter(player => 
+                                player.position && player.position.abbreviation === position
+                            );
+                            
+                            if (players.length > 0) {
+                                const teamName = data.team.displayName;
+                                if (position === 'QB') {
+                                    const starter = players.find(p => p.starter) || players[0];
+                                    return `${starter.fullName} is the starting quarterback for the ${teamName}. He wears #${starter.jersey}.`;
+                                } else if (position === 'RB') {
+                                    const backs = players.slice(0, 3).map(p => `${p.fullName} (#${p.jersey})`);
+                                    return `The ${teamName}'s running backs include: ${backs.join(', ')}.`;
+                                } else if (position === 'WR') {
+                                    const receivers = players.slice(0, 4).map(p => `${p.fullName} (#${p.jersey})`);
+                                    return `The ${teamName}'s wide receivers include: ${receivers.join(', ')}.`;
+                                }
+                            }
+                        } catch (apiError) {
+                            // Fall back to general team info if roster API fails
+                            console.log('Roster API error:', apiError);
+                        }
                     }
 
-                    // Running back questions
-                    if (lowerQ.includes('running back') || lowerQ.includes('rb')) {
-                        if (lowerQ.includes('jets')) return "The New York Jets' primary running backs include Breece Hall and Dalvin Cook. Hall is a young, talented back who had a great rookie season before injury.";
-                        if (lowerQ.includes('cowboys')) return "The Dallas Cowboys' running back is primarily Tony Pollard, with Rico Dowdle also getting carries.";
-                        if (lowerQ.includes('chiefs')) return "The Kansas City Chiefs use Isiah Pacheco as their primary running back, with Clyde Edwards-Helaire also in the backfield.";
-                    }
-
-                    // Standings and records
+                    // Handle standings/records questions
                     if (lowerQ.includes('standings') || lowerQ.includes('record')) {
-                        return "NFL standings change weekly during the season! Each conference (AFC and NFC) has 4 divisions with 4 teams each. You can find the most current standings at NFL.com or ESPN.com - they update after every game with wins, losses, and playoff positioning.";
+                        try {
+                            const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard');
+                            const data = await response.json();
+                            
+                            if (team) {
+                                // Look for specific team record
+                                const teamData = data.leagues[0].season;
+                                return `I found current NFL data! For detailed ${team.name.toUpperCase()} standings and record, the information updates weekly. The current season information shows teams are actively playing. Check the latest standings at ESPN.com for the most up-to-date records.`;
+                            } else {
+                                return `The current NFL season standings are updated weekly! There are 32 teams divided into AFC and NFC conferences, each with 4 divisions. The season runs from September through January, with playoffs in January and the Super Bowl in February. Check ESPN.com for the most current standings and playoff picture.`;
+                            }
+                        } catch (error) {
+                            console.log('Standings API error:', error);
+                        }
                     }
 
-                    // Schedule questions
+                    // Handle schedule/game questions
                     if (lowerQ.includes('schedule') || lowerQ.includes('when') || lowerQ.includes('next game')) {
-                        return "NFL games are typically played on Sundays, with some Monday Night Football and Thursday Night Football games. For specific team schedules and game times, I recommend checking NFL.com, ESPN.com, or your team's official website for the most up-to-date information.";
+                        try {
+                            const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard');
+                            const data = await response.json();
+                            
+                            if (data.events && data.events.length > 0) {
+                                const upcomingGames = data.events.slice(0, 3).map(game => {
+                                    const homeTeam = game.competitions[0].competitors.find(c => c.homeAway === 'home');
+                                    const awayTeam = game.competitions[0].competitors.find(c => c.homeAway === 'away');
+                                    const gameDate = new Date(game.date).toLocaleDateString('en-US', {
+                                        weekday: 'long',
+                                        month: 'long', 
+                                        day: 'numeric'
+                                    });
+                                    return `${awayTeam.team.displayName} at ${homeTeam.team.displayName} on ${gameDate}`;
+                                });
+                                
+                                return `Here are some upcoming NFL games: ${upcomingGames.join(', ')}. For complete schedules and times, visit ESPN.com or NFL.com.`;
+                            }
+                        } catch (error) {
+                            console.log('Schedule API error:', error);
+                        }
                     }
 
-                    // Playoff information
-                    if (lowerQ.includes('playoff')) {
-                        return "The NFL playoffs include 14 teams total - 7 from each conference (AFC and NFC). The playoffs start in January with Wild Card weekend, followed by Divisional rounds, Conference Championships, and finally the Super Bowl. The #1 seed in each conference gets a bye week.";
-                    }
-
-                    return "I'd be happy to help you find that information! For the most current NFL player information, team rosters, and statistics, I recommend checking NFL.com or ESPN.com. They have up-to-date rosters, depth charts, and player stats that are updated regularly.";
+                    // Default response for current info questions
+                    return "I'm searching for the most current NFL information! The data comes from ESPN's live feeds. For the most up-to-date player information, team rosters, and statistics, you can also check ESPN.com or NFL.com directly.";
 
                 } catch (error) {
-                    return "I'm having trouble searching right now, but I can still help with NFL rules and general football questions!";
+                    return "I'm having trouble getting the latest NFL information right now, but I can still help you with football rules and basics!";
                 }
             };
 
