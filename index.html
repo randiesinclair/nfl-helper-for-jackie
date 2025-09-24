@@ -70,77 +70,42 @@
                 "Explain the offside rule"
             ];
 
+            const teamNameToId = {
+                'jets': '20', 'chiefs': '12', 'cowboys': '6', 'bills': '2', 'packers': '9',
+                'patriots': '17', 'steelers': '23', 'ravens': '33', 'browns': '5',
+                'bengals': '4', 'titans': '10', 'colts': '11', 'jaguars': '30',
+                'texans': '34', 'broncos': '7', 'chargers': '24', 'raiders': '13',
+                'dolphins': '15', 'giants': '19', 'eagles': '21', 'commanders': '28',
+                'bears': '3', 'lions': '8', 'vikings': '16', 'cardinals': '22',
+                'rams': '14', 'seahawks': '26', 'niners': '25', '49ers': '25',
+                'saints': '18', 'falcons': '1', 'panthers': '29', 'bucs': '27',
+                'buccaneers': '27'
+            };
+
             const nflRules = [
                 {
                     title: "Basic Scoring",
-                    content: `
-                        • Touchdown: 6 points (getting the ball into the end zone)
-                        • Extra Point: 1 point (kick after touchdown)
-                        • Two-Point Conversion: 2 points (play from 2-yard line after touchdown)
-                        • Field Goal: 3 points (kick through goalposts)
-                        • Safety: 2 points (tackle opponent in their end zone)
-                    `
+                    content: "• Touchdown: 6 points (getting the ball into the end zone)\n• Extra Point: 1 point (kick after touchdown)\n• Two-Point Conversion: 2 points (play from 2-yard line after touchdown)\n• Field Goal: 3 points (kick through goalposts)\n• Safety: 2 points (tackle opponent in their end zone)"
                 },
                 {
-                    title: "Game Structure",
-                    content: `
-                        • 4 quarters, 15 minutes each (60 minutes total game time)
-                        • 12-minute halftime break
-                        • Each team gets 3 timeouts per half
-                        • Clock stops for incomplete passes, out of bounds, timeouts
-                        • Overtime: 10 minutes in regular season, 15 in playoffs
-                    `
+                    title: "Game Structure", 
+                    content: "• 4 quarters, 15 minutes each (60 minutes total game time)\n• 12-minute halftime break\n• Each team gets 3 timeouts per half\n• Clock stops for incomplete passes, out of bounds, timeouts\n• Overtime: 10 minutes in regular season, 15 in playoffs"
                 },
                 {
                     title: "Downs and Possession",
-                    content: `
-                        • Teams get 4 attempts (downs) to advance 10 yards
-                        • Success = new set of 4 downs (first down)
-                        • Failure = other team gets the ball
-                        • Can punt on 4th down to give opponent worse field position
-                        • Can attempt field goal if close enough to goalposts
-                    `
+                    content: "• Teams get 4 attempts (downs) to advance 10 yards\n• Success = new set of 4 downs (first down)\n• Failure = other team gets the ball\n• Can punt on 4th down to give opponent worse field position\n• Can attempt field goal if close enough to goalposts"
                 },
                 {
                     title: "Player Positions - Offense",
-                    content: `
-                        • Quarterback (QB): Throws passes, leads the offense
-                        • Running Backs (RB): Carry the ball, catch passes
-                        • Wide Receivers (WR): Catch passes downfield
-                        • Tight Ends (TE): Block and catch passes
-                        • Offensive Line: 5 players who protect the QB and create running lanes
-                    `
+                    content: "• Quarterback (QB): Throws passes, leads the offense\n• Running Backs (RB): Carry the ball, catch passes\n• Wide Receivers (WR): Catch passes downfield\n• Tight Ends (TE): Block and catch passes\n• Offensive Line: 5 players who protect the QB and create running lanes"
                 },
                 {
-                    title: "Player Positions - Defense",
-                    content: `
-                        • Defensive Line: Rush the quarterback, stop running plays
-                        • Linebackers (LB): Cover middle of field, rush QB, stop runs
-                        • Cornerbacks (CB): Cover wide receivers
-                        • Safeties (S): Deep coverage, help against passes and runs
-                    `
+                    title: "Player Positions - Defense", 
+                    content: "• Defensive Line: Rush the quarterback, stop running plays\n• Linebackers (LB): Cover middle of field, rush QB, stop runs\n• Cornerbacks (CB): Cover wide receivers\n• Safeties (S): Deep coverage, help against passes and runs"
                 },
                 {
                     title: "Common Penalties",
-                    content: `
-                        • False Start: Offensive player moves before snap (5 yards)
-                        • Holding: Illegally grabbing opponent (10 yards)
-                        • Pass Interference: Illegally preventing catch (spot foul)
-                        • Offside: Player crosses line before snap (5 yards)
-                        • Roughing the Passer: Hitting QB after throw (15 yards)
-                        • Facemask: Grabbing opponent's helmet (15 yards)
-                    `
-                },
-                {
-                    title: "Special Situations",
-                    content: `
-                        • Interception: Defense catches a pass, gains possession
-                        • Fumble: Offensive player loses control of ball
-                        • Sack: QB tackled behind line of scrimmage
-                        • Blitz: Extra defenders rush the quarterback
-                        • Red Zone: Area within 20 yards of goal line
-                        • Two-minute warning: Automatic timeout with 2 minutes left in each half
-                    `
+                    content: "• False Start: Offensive player moves before snap (5 yards)\n• Holding: Illegally grabbing opponent (10 yards)\n• Pass Interference: Illegally preventing catch (spot foul)\n• Offside: Player crosses line before snap (5 yards)\n• Roughing the Passer: Hitting QB after throw (15 yards)\n• Facemask: Grabbing opponent's helmet (15 yards)"
                 }
             ];
 
@@ -149,11 +114,6 @@
                     title: "NFL Official Website",
                     url: "https://www.nfl.com",
                     description: "Official scores, standings, news, and player stats"
-                },
-                {
-                    title: "NFL Rulebook",
-                    url: "https://operations.nfl.com/the-rules/",
-                    description: "Complete official NFL rules and explanations"
                 },
                 {
                     title: "ESPN NFL",
@@ -167,55 +127,21 @@
                 }
             ];
 
-            // Enhanced knowledge base with more comprehensive answers
             const nflKnowledge = {
-                // Scoring
                 "touchdown": "A touchdown is worth 6 points and happens when a team gets the ball into the opponent's end zone (the colored area at each end of the field). After scoring a touchdown, the team can kick for 1 extra point or try a 2-point conversion play.",
                 "field goal": "A field goal is worth 3 points. The team kicks the ball through the yellow goalposts from anywhere on the field. Teams often attempt field goals on 4th down when they're close enough but can't get a touchdown.",
-                "safety": "A safety is worth 2 points and happens when the defense tackles an offensive player in their own end zone, or when the offense commits certain penalties in their end zone.",
-
-                // Game structure
                 "quarters": "A football game has 4 quarters, each lasting 15 minutes of game time. With timeouts, commercial breaks, and clock stoppages, games usually last about 3 hours total.",
-                "halftime": "Halftime is a 12-minute break between the 2nd and 3rd quarters. Players rest, coaches make adjustments, and during big games there are often entertainment shows.",
-                "overtime": "In overtime, the team that wins the coin toss can choose to receive the ball or defer. If they score a touchdown, they win immediately. If they kick a field goal, the other team gets a chance to match or beat it.",
-
-                // Basic rules
                 "first down": "A first down means a team has earned a fresh set of 4 attempts (called 'downs') to advance the ball 10 more yards. Teams must gain 10 yards within 4 plays to keep possession of the ball.",
-                "down": "A 'down' is one play attempt. Teams get 4 downs to advance the ball 10 yards. If successful, they get 4 new downs. If they fail, the other team gets the ball.",
-                "punt": "Punting usually happens on 4th down when a team doesn't think they can get the 10 yards needed. They kick the ball to the other team, but from much farther away.",
-
-                // Positions
                 "quarterback": "The quarterback (QB) is the field general of the offense. They take the snap from the center, decide whether to hand off, throw, or run with the ball. They call plays and are usually the team leader.",
                 "running back": "Running backs (RBs) are the main ball carriers. They take handoffs from the quarterback and try to run through or around the defense. They also catch passes and help block.",
-                "wide receiver": "Wide receivers (WRs) are the primary pass catchers. They run specific routes and try to get open to catch passes from the quarterback.",
-
-                // Other concepts
-                "interception": "An interception happens when a defensive player catches a pass that was intended for an offensive player. When this happens, possession immediately changes to the defense.",
-                "fumble": "A fumble occurs when a player loses control of the football. Any player from either team can recover it, and whichever team gets it keeps possession.",
-                "sack": "A sack is when the quarterback is tackled behind the line of scrimmage while trying to pass. This results in a loss of yards and uses up a down.",
-                "blitz": "A blitz is when the defense sends extra players to rush the quarterback, trying to tackle him quickly before he can throw the ball.",
-
-                // Team info
                 "players": "Each team has 11 players on the field at any time. The total roster can have up to 53 players, but only 11 from each team are allowed on the field during any play."
-            };
-
-            const teamNameToId = {
-                'jets': '20', 'chiefs': '12', 'cowboys': '6', 'bills': '2', 'packers': '9',
-                'patriots': '17', 'steelers': '23', 'ravens': '33', 'browns': '5',
-                'bengals': '4', 'titans': '10', 'colts': '11', 'jaguars': '30',
-                'texans': '34', 'broncos': '7', 'chargers': '24', 'raiders': '13',
-                'dolphins': '15', 'giants': '19', 'eagles': '21', 'commanders': '28',
-                'bears': '3', 'lions': '8', 'vikings': '16', 'cardinals': '22',
-                'rams': '14', 'seahawks': '26', 'niners': '25', '49ers': '25',
-                'saints': '18', 'falcons': '1', 'panthers': '29', 'bucs': '27',
-                'buccaneers': '27'
             };
 
             const getTeamFromQuestion = (question) => {
                 const lowerQ = question.toLowerCase();
-                for (const [teamName, teamId] of Object.entries(teamNameToId)) {
+                for (const teamName of Object.keys(teamNameToId)) {
                     if (lowerQ.includes(teamName)) {
-                        return { name: teamName, id: teamId };
+                        return { name: teamName, id: teamNameToId[teamName] };
                     }
                 }
                 return null;
@@ -226,110 +152,63 @@
                     const lowerQ = question.toLowerCase();
                     const team = getTeamFromQuestion(question);
 
-                    // Handle team-specific roster questions
                     if (team && (lowerQ.includes('quarterback') || lowerQ.includes('qb') || 
                                 lowerQ.includes('running back') || lowerQ.includes('rb') ||
                                 lowerQ.includes('wide receiver') || lowerQ.includes('wr'))) {
                         
-                        try {
-                            const response = await fetch(`https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/${team.id}/roster`);
-                            const data = await response.json();
-                            
-                            let position = '';
-                            if (lowerQ.includes('quarterback') || lowerQ.includes('qb')) position = 'QB';
-                            if (lowerQ.includes('running back') || lowerQ.includes('rb')) position = 'RB';
-                            if (lowerQ.includes('wide receiver') || lowerQ.includes('wr')) position = 'WR';
-                            
-                            const players = data.athletes.filter(player => 
-                                player.position && player.position.abbreviation === position
-                            );
-                            
-                            if (players.length > 0) {
-                                const teamName = data.team.displayName;
-                                if (position === 'QB') {
-                                    const starter = players.find(p => p.starter) || players[0];
-                                    return `${starter.fullName} is the starting quarterback for the ${teamName}. He wears #${starter.jersey}.`;
-                                } else if (position === 'RB') {
-                                    const backs = players.slice(0, 3).map(p => `${p.fullName} (#${p.jersey})`);
-                                    return `The ${teamName}'s running backs include: ${backs.join(', ')}.`;
-                                } else if (position === 'WR') {
-                                    const receivers = players.slice(0, 4).map(p => `${p.fullName} (#${p.jersey})`);
-                                    return `The ${teamName}'s wide receivers include: ${receivers.join(', ')}.`;
-                                }
+                        const response = await fetch(`https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/${team.id}/roster`);
+                        
+                        if (!response.ok) {
+                            throw new Error('API request failed');
+                        }
+                        
+                        const data = await response.json();
+                        
+                        let position = '';
+                        if (lowerQ.includes('quarterback') || lowerQ.includes('qb')) position = 'QB';
+                        if (lowerQ.includes('running back') || lowerQ.includes('rb')) position = 'RB';  
+                        if (lowerQ.includes('wide receiver') || lowerQ.includes('wr')) position = 'WR';
+                        
+                        const players = data.athletes.filter(player => 
+                            player.position && player.position.abbreviation === position
+                        );
+                        
+                        if (players.length > 0) {
+                            const teamName = data.team.displayName;
+                            if (position === 'QB') {
+                                const starter = players.find(p => p.starter) || players[0];
+                                return `${starter.fullName} is the starting quarterback for the ${teamName}. He wears jersey #${starter.jersey}.`;
+                            } else if (position === 'RB') {
+                                const backs = players.slice(0, 3).map(p => `${p.fullName} (#${p.jersey})`);
+                                return `The ${teamName}'s running backs include: ${backs.join(', ')}.`;
+                            } else if (position === 'WR') {
+                                const receivers = players.slice(0, 4).map(p => `${p.fullName} (#${p.jersey})`);
+                                return `The ${teamName}'s wide receivers include: ${receivers.join(', ')}.`;
                             }
-                        } catch (apiError) {
-                            // Fall back to general team info if roster API fails
-                            console.log('Roster API error:', apiError);
+                        } else {
+                            return `I found the ${data.team.displayName} roster but couldn't locate ${position} players. This might be due to how the data is structured. You can check the full roster at ESPN.com.`;
                         }
                     }
 
-                    // Handle standings/records questions
                     if (lowerQ.includes('standings') || lowerQ.includes('record')) {
-                        try {
-                            const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard');
-                            const data = await response.json();
-                            
-                            if (team) {
-                                // Look for specific team record
-                                const teamData = data.leagues[0].season;
-                                return `I found current NFL data! For detailed ${team.name.toUpperCase()} standings and record, the information updates weekly. The current season information shows teams are actively playing. Check the latest standings at ESPN.com for the most up-to-date records.`;
-                            } else {
-                                return `The current NFL season standings are updated weekly! There are 32 teams divided into AFC and NFC conferences, each with 4 divisions. The season runs from September through January, with playoffs in January and the Super Bowl in February. Check ESPN.com for the most current standings and playoff picture.`;
-                            }
-                        } catch (error) {
-                            console.log('Standings API error:', error);
-                        }
+                        return "The current NFL season standings are updated weekly! There are 32 teams divided into AFC and NFC conferences, each with 4 divisions. The season runs from September through January, with playoffs in January and the Super Bowl in February. Check ESPN.com for the most current standings and playoff picture.";
                     }
 
-                    // Handle schedule/game questions
                     if (lowerQ.includes('schedule') || lowerQ.includes('when') || lowerQ.includes('next game')) {
-                        try {
-                            const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard');
-                            const data = await response.json();
-                            
-                            if (data.events && data.events.length > 0) {
-                                const upcomingGames = data.events.slice(0, 3).map(game => {
-                                    const homeTeam = game.competitions[0].competitors.find(c => c.homeAway === 'home');
-                                    const awayTeam = game.competitions[0].competitors.find(c => c.homeAway === 'away');
-                                    const gameDate = new Date(game.date).toLocaleDateString('en-US', {
-                                        weekday: 'long',
-                                        month: 'long', 
-                                        day: 'numeric'
-                                    });
-                                    return `${awayTeam.team.displayName} at ${homeTeam.team.displayName} on ${gameDate}`;
-                                });
-                                
-                                return `Here are some upcoming NFL games: ${upcomingGames.join(', ')}. For complete schedules and times, visit ESPN.com or NFL.com.`;
-                            }
-                        } catch (error) {
-                            console.log('Schedule API error:', error);
-                        }
+                        return "NFL games are typically played on Sundays at 1:00 PM and 4:25 PM ET, with Sunday Night Football at 8:20 PM ET. Monday Night Football is at 8:15 PM ET. Thursday Night Football starts at 8:15 PM ET. For specific team schedules, check ESPN.com or NFL.com.";
                     }
 
-                    // Default response for current info questions
-                    return "I'm searching for the most current NFL information! The data comes from ESPN's live feeds. For the most up-to-date player information, team rosters, and statistics, you can also check ESPN.com or NFL.com directly.";
+                    return "I can help you find current NFL information! Ask me about specific players, teams, or positions, and I'll search ESPN's database for you.";
 
                 } catch (error) {
-                    return "I'm having trouble getting the latest NFL information right now, but I can still help you with football rules and basics!";
+                    console.error('API Error:', error);
+                    return "I'm having trouble connecting to the NFL database right now, but I can still help you with football rules and basic questions!";
                 }
-            };
-
-            const extractSearchTerms = (question) => {
-                const lowerQ = question.toLowerCase();
-                const teams = ['chiefs', 'cowboys', 'patriots', 'steelers', 'packers', 'jets', 'bills', 'dolphins'];
-                const positions = ['quarterback', 'qb', 'running back', 'rb', 'wide receiver', 'wr'];
-                
-                let terms = [];
-                teams.forEach(team => { if (lowerQ.includes(team)) terms.push(team); });
-                positions.forEach(pos => { if (lowerQ.includes(pos)) terms.push(pos); });
-                
-                return terms.join(' ');
             };
 
             const getAnswer = async (question) => {
                 const lowerQ = question.toLowerCase();
                 
-                // Check if it needs current NFL info (players, teams, current season)
                 const needsCurrentInfo = [
                     'quarterback', 'qb', 'running back', 'rb', 'wide receiver', 'wr',
                     'roster', 'starting', 'who is', 'who are', 'record', 'standings',
@@ -340,20 +219,17 @@
                     return await searchNFLInfo(question);
                 }
 
-                // Check knowledge base for rules and basic concepts
-                for (const [key, answer] of Object.entries(nflKnowledge)) {
-                    if (lowerQ.includes(key)) return answer;
+                for (const key of Object.keys(nflKnowledge)) {
+                    if (lowerQ.includes(key)) {
+                        return nflKnowledge[key];
+                    }
                 }
 
-                // Pattern matching for common questions
                 if (lowerQ.includes('long') && lowerQ.includes('game')) return nflKnowledge.quarters;
                 if (lowerQ.includes('worth') && lowerQ.includes('touchdown')) return nflKnowledge.touchdown;
                 if (lowerQ.includes('how many') && lowerQ.includes('player')) return nflKnowledge.players;
-                if (lowerQ.includes('difference') && (lowerQ.includes('offense') || lowerQ.includes('defense'))) {
-                    return "The offense is the team that has possession of the ball and is trying to score points by advancing toward the end zone. The defense is the team trying to stop them and get the ball back. When possession changes, the teams switch roles.";
-                }
 
-                return "Great question, Jackie! I can help with NFL rules, player positions, scoring, and current team information. Try asking about specific rules, players, or teams - or check out the Rules section for detailed explanations of how football works!";
+                return "Great question, Jackie! I can help with NFL rules, player positions, scoring, and current team information. Try asking about specific rules, players, or teams - or check out the Rules section for detailed explanations!";
             };
 
             const handleSubmit = async (question) => {
@@ -477,16 +353,6 @@
                                     }, 'Visit Site →')
                                 )
                             )
-                        ),
-                        e('div', { className: 'mt-8 bg-blue-50 rounded-2xl p-6 border-2 border-blue-200' },
-                            e('h3', { className: 'text-xl font-semibold text-blue-600 mb-3' }, 'Quick Tips for Following Football:'),
-                            e('ul', { className: 'text-gray-700 space-y-2' },
-                                e('li', null, '📱 Download your favorite team\'s official app for news and schedules'),
-                                e('li', null, '📺 Games are usually on Sundays at 1 PM and 4:25 PM ET, plus Sunday/Monday nights'),
-                                e('li', null, '🏈 Fantasy football is a fun way to learn about players across the league'),
-                                e('li', null, '📊 RedZone channel shows highlights from all Sunday games happening simultaneously'),
-                                e('li', null, '🎯 Focus on learning one team well first, then expand to others')
-                            )
                         )
                     )
                 );
@@ -502,7 +368,6 @@
                     e('p', { className: 'text-blue-100 text-lg' }, 'Your complete guide to understanding football! 🏈')
                 ),
 
-                // Tabs
                 e('div', { className: 'bg-white shadow-sm' },
                     e('div', { className: 'flex justify-center space-x-1 p-4' },
                         e('button', {
@@ -526,14 +391,12 @@
                     )
                 ),
 
-                // Tab Content
                 activeTab === 'chat' && renderChatTab(),
                 activeTab === 'rules' && renderRulesTab(),
                 activeTab === 'resources' && renderResourcesTab(),
 
-                // Footer
                 e('div', { className: 'p-6 text-center text-gray-500 text-sm' },
-                    'Made for my Mother in Love help learn football'
+                    'V16 Made with ❤️ to help Jackie enjoy football with the family'
                 )
             );
         }
