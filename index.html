@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFL Helper for Jackie</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.22.5/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/umd/lucide.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { margin: 0; font-family: system-ui, -apple-system, sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); }
+        .chat-scroll { max-height: 60vh; overflow-y: auto; }
+        .football-icon { 
+            width: 32px; 
+            height: 32px; 
+            background: #ffffff; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: bold; 
+            color: #3b82f6; 
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const { MessageCircle, Send, Heart, Search, Loader2 } = lucide;
+
+        const NFLHelperForJackie = () => {
+            const [messages, setMessages] = useState([
+                {
+                    type: 'assistant',
+                    content: "Hi Jackie! 👋 Welcome to your personal NFL helper! I can answer questions about football rules AND get you the latest information about teams, players, scores, and schedules. Ask me anything - from basics like 'What's a touchdown?' to current info like 'Who's the quarterback for the Cowboys?'"
+                }
+            ]);
+            const [inputValue, setInputValue] = useState('');
+            const [isLoading, setIsLoading] = useState(false);
+
+            const commonQuestions = [
+                "How long is a football game?",
+                "What's a touchdown worth?",
+                "Who is the quarterback for the Chiefs?",
+                "What does 'first down' mean?",
+                "What are the current NFL playoff standings?",
+                "How many players are on each team?"
+            ];
+
+            const nflBasics = {
+                "touchdown": "A touchdown is worth 6 points and happens when a team gets the ball into the opponent's end zone. After a touchdown, the team can try for an extra point (1 point) by kicking through the goalposts, or try for a 2-point conversion.",
+                
+                "first down": "A first down means a team has 4 new attempts (called 'downs') to move the ball 10 yards forward. If they succeed, they get a fresh set of 4 downs to try again.",
+                
+                "quarters": "A football game has 4 quarters, each lasting 15 minutes. That's 60 minutes of game time total, though games usually last about 3 hours with breaks.",
+                
+                "players": "Each team has 11 players on the field at any time. The total roster can have up to 53 players, but only 11 from each team play at once.",
+                
+                "offense": "The offense is the team that has the ball and is trying to score. The defense is the team trying to stop them and get the ball back.",
+                
+                "field goal": "A field goal is worth 3 points. It's when the team kicks the ball through the goalposts from anywhere on the field.",
+                
+                "quarterback": "The quarterback (QB) is like the team captain on offense. They throw the ball, hand it off to running backs, and make decisions about plays.",
+                
+                "interception": "An interception happens when the defense catches a pass meant for the offense. The defense then becomes the offense and can try to score!"
+            };
+
+            const needsCurrentInfo = (question) => {
+                const lowerQ = question.toLowerCase();
+                const currentKeywords = [
+                    'quarterback', 'qb', 'starting', 'roster', 'coach', 'record', 'standings', 
+                    'schedule', 'next game', 'last game', 'score', 'playoff', 'division',
+                    'injured', 'stats', 'season', 'trade', 'draft', 'current', 'today',
+                    'this week', 'this season', 'who is', 'when is', 'what team'
+                ];
+                return currentKeywords.some(keyword => lowerQ.includes(keyword));
+            };
+
+            const searchNFLInfo = async (question) => {
+                try {
+                    // This would be where you'd integrate with an NFL API
+                    // For demo purposes, we'll simulate the search
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    
+                    const lowerQ = question.toLowerCase();
+                    
+                    if (lowerQ.includes('chiefs') && lowerQ.includes('quarterback')) {
+                        return "Patrick Mahomes is the starting quarterback for the Kansas City Chiefs. He's been their starter since 2018 and won Super Bowl MVP in 2020 and 2023!";
+                    }
+                    
+                    if (lowerQ.includes('cowboys') && lowerQ.includes('quarterback')) {
+                        return "Dak Prescott is the starting quarterback for the Dallas Cowboys. He's been with the team since 2016.";
+                    }
+                    
+                    if (lowerQ.includes('playoff') || lowerQ.includes('standings')) {
+                        return "I'd need to check the current NFL standings for you! The playoff picture changes weekly during the season. In a live version, I could get you the real-time standings from the NFL.";
+                    }
+                    
+                    if (lowerQ.includes('schedule') || lowerQ.includes('next game')) {
+                        return "I'd love to get you the current NFL schedule! In the live version, I could tell you exactly when any team is playing next and what channel the game is on.";
+                    }
+                    
+                    return "Great question about current NFL info! In this demo, I'm showing you how I'd search for live information. The real version would connect to NFL databases to give you up-to-the-minute information about any team, player, or game!";
+                    
+                } catch (error) {
+                    return "I'm having trouble getting the latest NFL information right now, but I can still help you with football rules and basics!";
+                }
+            };
+
+            const getBasicAnswer = (question) => {
+                const lowerQ = question.toLowerCase();
+                
+                for (const [key, answer] of Object.entries(nflBasics)) {
+                    if (lowerQ.includes(key)) return answer;
+                }
+                
+                if (lowerQ.includes('long') && lowerQ.includes('game')) return nflBasics.quarters;
+                if (lowerQ.includes('worth') && lowerQ.includes('touchdown')) return nflBasics.touchdown;
+                if (lowerQ.includes('how many') && lowerQ.includes('player')) return nflBasics.players;
+                if (lowerQ.includes('difference') && lowerQ.includes('offense')) return nflBasics.offense;
+                
+                return "That's a great question, Jackie! I can help with both NFL basics (like rules, scoring, and how the game works) and current information (like who's playing, team records, and schedules). Feel free to ask me anything! 🏈";
+            };
+
+            const handleSubmit = async (question) => {
+                if (!question.trim() || isLoading) return;
+                
+                setMessages(prev => [...prev, { type: 'user', content: question }]);
+                setIsLoading(true);
+                
+                try {
+                    let answer;
+                    
+                    if (needsCurrentInfo(question)) {
+                        setMessages(prev => [...prev, { 
+                            type: 'assistant', 
+                            content: "🔍 Let me search for the latest NFL information for you, Jackie..."
+                        }]);
+                        
+                        answer = await searchNFLInfo(question);
+                    } else {
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                        answer = getBasicAnswer(question);
+                    }
+                    
+                    setMessages(prev => {
+                        const newMessages = [...prev];
+                        if (needsCurrentInfo(question)) {
+                            // Replace the "searching..." message
+                            newMessages[newMessages.length - 1] = { type: 'assistant', content: answer };
+                        } else {
+                            newMessages.push({ type: 'assistant', content: answer });
+                        }
+                        return newMessages;
+                    });
+                    
+                } catch (error) {
+                    setMessages(prev => [...prev, { 
+                        type: 'assistant', 
+                        content: "I'm having a little trouble right now, but I'm still here to help with your football questions, Jackie!" 
+                    }]);
+                }
+                
+                setIsLoading(false);
+                setInputValue('');
+            };
+
+            const handleQuickQuestion = (question) => {
+                handleSubmit(question);
+            };
+
+            return React.createElement('div', { className: 'min-h-screen bg-gradient-to-br from-blue-50 to-purple-50' },
+                React.createElement('div', { className: 'gradient-bg text-white p-6 text-center shadow-lg' },
+                    React.createElement('div', { className: 'flex items-center justify-center gap-3 mb-3' },
+                        React.createElement('div', { className: 'football-icon' }, '🏈'),
+                        React.createElement('h1', { className: 'text-3xl font-bold' }, 'NFL Helper for Jackie'),
+                        React.createElement(Heart, { className: 'w-6 h-6 text-pink-200' })
+                    ),
+                    React.createElement('p', { className: 'text-blue-100 text-lg' }, 'Your personal guide to understanding football! Ask me anything! 🏈')
+                ),
+                
+                React.createElement('div', { className: 'p-6 bg-white shadow-sm' },
+                    React.createElement('h2', { className: 'text-lg font-semibold text-gray-800 mb-4' }, 'Quick Questions to Get Started:'),
+                    React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3' },
+                        commonQuestions.map((question, index) =>
+                            React.createElement('button', {
+                                key: index,
+                                onClick: () => handleQuickQuestion(question),
+                                className: 'text-left p-4 bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 rounded-xl border-2 border-blue-200 hover:border-blue-300 transition-all duration-200 text-sm text-blue-800 font-medium shadow-sm hover:shadow-md'
+                            }, question)
+                        )
+                    )
+                ),
+                
+                React.createElement('div', { className: 'p-6' },
+                    React.createElement('div', { className: 'max-w-4xl mx-auto' },
+                        React.createElement('div', { className: 'chat-scroll space-y-4 mb-6' },
+                            messages.map((message, index) =>
+                                React.createElement('div', { 
+                                    key: index, 
+                                    className: `flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}` 
+                                },
+                                    React.createElement('div', { 
+                                        className: `max-w-md px-5 py-4 rounded-2xl shadow-md ${
+                                            message.type === 'user' 
+                                                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' 
+                                                : 'bg-white text-gray-800 border border-gray-200'
+                                        }` 
+                                    },
+                                        message.type === 'assistant' && React.createElement('div', { className: 'flex items-center gap-2 mb-2' },
+                                            React.createElement(MessageCircle, { className: 'w-4 h-4 text-blue-600' }),
+                                            React.createElement('span', { className: 'text-sm font-medium text-blue-600' }, 'NFL Helper')
+                                        ),
+                                        React.createElement('p', { className: 'leading-relaxed' }, message.content)
+                                    )
+                                )
+                            )
+                        ),
+                        
+                        React.createElement('div', { className: 'bg-white rounded-2xl shadow-lg border border-gray-200 p-6' },
+                            React.createElement('div', { className: 'flex gap-4' },
+                                React.createElement('input', {
+                                    type: 'text',
+                                    value: inputValue,
+                                    onChange: (e) => setInputValue(e.target.value),
+                                    onKeyPress: (e) => e.key === 'Enter' && handleSubmit(inputValue),
+                                    placeholder: "Ask Jackie anything about football...",
+                                    disabled: isLoading,
+                                    className: 'flex-1 px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 placeholder-gray-500'
+                                }),
+                                React.createElement('button', {
+                                    onClick: () => handleSubmit(inputValue),
+                                    disabled: isLoading || !inputValue.trim(),
+                                    className: 'px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 flex items-center gap-2 font-medium shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed'
+                                },
+                                    isLoading 
+                                        ? React.createElement(Loader2, { className: 'w-5 h-5 animate-spin' })
+                                        : React.createElement(Send, { className: 'w-5 h-5' }),
+                                    isLoading ? 'Thinking...' : 'Ask'
+                                )
+                            ),
+                            React.createElement('p', { className: 'text-sm text-gray-500 mt-4 text-center' },
+                                'Made with ❤️ to help Jackie enjoy football with the family'
+                            )
+                        )
+                    )
+                )
+            );
+        };
+
+        ReactDOM.render(React.createElement(NFLHelperForJackie), document.getElementById('root'));
+    </script>
+</body>
+</html>
