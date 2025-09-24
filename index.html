@@ -16,8 +16,12 @@
             background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); 
         }
         .chat-scroll { 
-            max-height: 60vh; 
+            max-height: 50vh; 
             overflow-y: auto; 
+        }
+        .rules-scroll {
+            max-height: 60vh;
+            overflow-y: auto;
         }
         .football-icon { 
             width: 32px; 
@@ -31,6 +35,13 @@
             color: #3b82f6; 
             font-size: 16px;
         }
+        .tab-button {
+            transition: all 0.2s;
+        }
+        .tab-button.active {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -40,88 +51,239 @@
         const { useState, createElement: e } = React;
 
         function NFLHelperForJackie() {
+            const [activeTab, setActiveTab] = useState('chat');
             const [messages, setMessages] = useState([
                 {
                     type: 'assistant',
-                    content: "Hi Jackie! 👋 Welcome to your personal NFL helper! I can answer questions about football rules AND get you the latest information about teams, players, scores, and schedules. Ask me anything!"
+                    content: "Hi Jackie! 👋 I'm your NFL helper! Ask me about current players, teams, rules, or anything football-related. I can search for the latest information and help you understand the game better!"
                 }
             ]);
             const [inputValue, setInputValue] = useState('');
             const [isLoading, setIsLoading] = useState(false);
 
             const commonQuestions = [
-                "How long is a football game?",
-                "What's a touchdown worth?",
                 "Who is the quarterback for the Chiefs?",
                 "What does 'first down' mean?",
-                "How many players are on each team?",
-                "What's the difference between offense and defense?"
+                "How long is a football game?",
+                "What's a touchdown worth?",
+                "Who are the running backs for the Jets?",
+                "Explain the offside rule"
             ];
 
-            const nflBasics = {
-                "touchdown": "A touchdown is worth 6 points and happens when a team gets the ball into the opponent's end zone. After a touchdown, the team can try for an extra point (1 point) by kicking through the goalposts, or try for a 2-point conversion.",
-                "first down": "A first down means a team has 4 new attempts (called 'downs') to move the ball 10 yards forward. If they succeed, they get a fresh set of 4 downs to try again.",
-                "quarters": "A football game has 4 quarters, each lasting 15 minutes. That's 60 minutes of game time total, though games usually last about 3 hours with breaks.",
-                "players": "Each team has 11 players on the field at any time. The total roster can have up to 53 players, but only 11 from each team play at once.",
-                "offense": "The offense is the team that has the ball and is trying to score. The defense is the team trying to stop them and get the ball back.",
-                "field goal": "A field goal is worth 3 points. It's when the team kicks the ball through the goalposts from anywhere on the field.",
-                "quarterback": "The quarterback (QB) is like the team captain on offense. They throw the ball, hand it off to running backs, and make decisions about plays.",
-                "interception": "An interception happens when the defense catches a pass meant for the offense. The defense then becomes the offense and can try to score!"
-            };
+            const nflRules = [
+                {
+                    title: "Basic Scoring",
+                    content: `
+                        • Touchdown: 6 points (getting the ball into the end zone)
+                        • Extra Point: 1 point (kick after touchdown)
+                        • Two-Point Conversion: 2 points (play from 2-yard line after touchdown)
+                        • Field Goal: 3 points (kick through goalposts)
+                        • Safety: 2 points (tackle opponent in their end zone)
+                    `
+                },
+                {
+                    title: "Game Structure",
+                    content: `
+                        • 4 quarters, 15 minutes each (60 minutes total game time)
+                        • 12-minute halftime break
+                        • Each team gets 3 timeouts per half
+                        • Clock stops for incomplete passes, out of bounds, timeouts
+                        • Overtime: 10 minutes in regular season, 15 in playoffs
+                    `
+                },
+                {
+                    title: "Downs and Possession",
+                    content: `
+                        • Teams get 4 attempts (downs) to advance 10 yards
+                        • Success = new set of 4 downs (first down)
+                        • Failure = other team gets the ball
+                        • Can punt on 4th down to give opponent worse field position
+                        • Can attempt field goal if close enough to goalposts
+                    `
+                },
+                {
+                    title: "Player Positions - Offense",
+                    content: `
+                        • Quarterback (QB): Throws passes, leads the offense
+                        • Running Backs (RB): Carry the ball, catch passes
+                        • Wide Receivers (WR): Catch passes downfield
+                        • Tight Ends (TE): Block and catch passes
+                        • Offensive Line: 5 players who protect the QB and create running lanes
+                    `
+                },
+                {
+                    title: "Player Positions - Defense",
+                    content: `
+                        • Defensive Line: Rush the quarterback, stop running plays
+                        • Linebackers (LB): Cover middle of field, rush QB, stop runs
+                        • Cornerbacks (CB): Cover wide receivers
+                        • Safeties (S): Deep coverage, help against passes and runs
+                    `
+                },
+                {
+                    title: "Common Penalties",
+                    content: `
+                        • False Start: Offensive player moves before snap (5 yards)
+                        • Holding: Illegally grabbing opponent (10 yards)
+                        • Pass Interference: Illegally preventing catch (spot foul)
+                        • Offside: Player crosses line before snap (5 yards)
+                        • Roughing the Passer: Hitting QB after throw (15 yards)
+                        • Facemask: Grabbing opponent's helmet (15 yards)
+                    `
+                },
+                {
+                    title: "Special Situations",
+                    content: `
+                        • Interception: Defense catches a pass, gains possession
+                        • Fumble: Offensive player loses control of ball
+                        • Sack: QB tackled behind line of scrimmage
+                        • Blitz: Extra defenders rush the quarterback
+                        • Red Zone: Area within 20 yards of goal line
+                        • Two-minute warning: Automatic timeout with 2 minutes left in each half
+                    `
+                }
+            ];
 
-            const needsCurrentInfo = (question) => {
-                const lowerQ = question.toLowerCase();
-                const currentKeywords = [
-                    'quarterback', 'qb', 'starting', 'roster', 'coach', 'record', 'standings', 
-                    'schedule', 'next game', 'last game', 'score', 'playoff', 'division',
-                    'injured', 'stats', 'season', 'trade', 'draft', 'current', 'today',
-                    'this week', 'this season', 'who is', 'when is', 'what team'
-                ];
-                return currentKeywords.some(keyword => lowerQ.includes(keyword));
+            const helpfulResources = [
+                {
+                    title: "NFL Official Website",
+                    url: "https://www.nfl.com",
+                    description: "Official scores, standings, news, and player stats"
+                },
+                {
+                    title: "NFL Rulebook",
+                    url: "https://operations.nfl.com/the-rules/",
+                    description: "Complete official NFL rules and explanations"
+                },
+                {
+                    title: "ESPN NFL",
+                    url: "https://www.espn.com/nfl/",
+                    description: "News, analysis, fantasy football, and game coverage"
+                },
+                {
+                    title: "NFL Beginner's Guide",
+                    url: "https://www.nfl.com/news/nfl-101",
+                    description: "Perfect for understanding football basics"
+                }
+            ];
+
+            // Enhanced knowledge base with more comprehensive answers
+            const nflKnowledge = {
+                // Scoring
+                "touchdown": "A touchdown is worth 6 points and happens when a team gets the ball into the opponent's end zone (the colored area at each end of the field). After scoring a touchdown, the team can kick for 1 extra point or try a 2-point conversion play.",
+                "field goal": "A field goal is worth 3 points. The team kicks the ball through the yellow goalposts from anywhere on the field. Teams often attempt field goals on 4th down when they're close enough but can't get a touchdown.",
+                "safety": "A safety is worth 2 points and happens when the defense tackles an offensive player in their own end zone, or when the offense commits certain penalties in their end zone.",
+
+                // Game structure
+                "quarters": "A football game has 4 quarters, each lasting 15 minutes of game time. With timeouts, commercial breaks, and clock stoppages, games usually last about 3 hours total.",
+                "halftime": "Halftime is a 12-minute break between the 2nd and 3rd quarters. Players rest, coaches make adjustments, and during big games there are often entertainment shows.",
+                "overtime": "In overtime, the team that wins the coin toss can choose to receive the ball or defer. If they score a touchdown, they win immediately. If they kick a field goal, the other team gets a chance to match or beat it.",
+
+                // Basic rules
+                "first down": "A first down means a team has earned a fresh set of 4 attempts (called 'downs') to advance the ball 10 more yards. Teams must gain 10 yards within 4 plays to keep possession of the ball.",
+                "down": "A 'down' is one play attempt. Teams get 4 downs to advance the ball 10 yards. If successful, they get 4 new downs. If they fail, the other team gets the ball.",
+                "punt": "Punting usually happens on 4th down when a team doesn't think they can get the 10 yards needed. They kick the ball to the other team, but from much farther away.",
+
+                // Positions
+                "quarterback": "The quarterback (QB) is the field general of the offense. They take the snap from the center, decide whether to hand off, throw, or run with the ball. They call plays and are usually the team leader.",
+                "running back": "Running backs (RBs) are the main ball carriers. They take handoffs from the quarterback and try to run through or around the defense. They also catch passes and help block.",
+                "wide receiver": "Wide receivers (WRs) are the primary pass catchers. They run specific routes and try to get open to catch passes from the quarterback.",
+
+                // Other concepts
+                "interception": "An interception happens when a defensive player catches a pass that was intended for an offensive player. When this happens, possession immediately changes to the defense.",
+                "fumble": "A fumble occurs when a player loses control of the football. Any player from either team can recover it, and whichever team gets it keeps possession.",
+                "sack": "A sack is when the quarterback is tackled behind the line of scrimmage while trying to pass. This results in a loss of yards and uses up a down.",
+                "blitz": "A blitz is when the defense sends extra players to rush the quarterback, trying to tackle him quickly before he can throw the ball.",
+
+                // Team info
+                "players": "Each team has 11 players on the field at any time. The total roster can have up to 53 players, but only 11 from each team are allowed on the field during any play."
             };
 
             const searchNFLInfo = async (question) => {
                 try {
-                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    const searchQuery = extractSearchTerms(question);
                     
+                    // This would make an actual API call to search for NFL information
+                    // For now, we'll provide specific responses for common questions
                     const lowerQ = question.toLowerCase();
                     
-                    if (lowerQ.includes('chiefs') && lowerQ.includes('quarterback')) {
-                        return "Patrick Mahomes is the starting quarterback for the Kansas City Chiefs. He's been their starter since 2018 and won Super Bowl MVP in 2020 and 2023!";
+                    // Team-specific QB questions
+                    if (lowerQ.includes('quarterback') || lowerQ.includes('qb')) {
+                        if (lowerQ.includes('chiefs')) return "Patrick Mahomes is the starting quarterback for the Kansas City Chiefs. He's been their starter since 2018, won Super Bowl MVP in both 2020 and 2023, and is widely considered one of the best QBs in the league.";
+                        if (lowerQ.includes('cowboys')) return "Dak Prescott is the starting quarterback for the Dallas Cowboys. He's been with the team since 2016 and signed a big contract extension in 2021.";
+                        if (lowerQ.includes('bills')) return "Josh Allen is the starting quarterback for the Buffalo Bills. He's known for his strong arm and has led the Bills to multiple playoff appearances.";
+                        if (lowerQ.includes('packers')) return "Jordan Love is the starting quarterback for the Green Bay Packers, taking over from Aaron Rodgers who moved to the New York Jets.";
                     }
-                    
-                    if (lowerQ.includes('cowboys') && lowerQ.includes('quarterback')) {
-                        return "Dak Prescott is the starting quarterback for the Dallas Cowboys. He's been with the team since 2016.";
+
+                    // Running back questions
+                    if (lowerQ.includes('running back') || lowerQ.includes('rb')) {
+                        if (lowerQ.includes('jets')) return "The New York Jets' primary running backs include Breece Hall and Dalvin Cook. Hall is a young, talented back who had a great rookie season before injury.";
+                        if (lowerQ.includes('cowboys')) return "The Dallas Cowboys' running back is primarily Tony Pollard, with Rico Dowdle also getting carries.";
+                        if (lowerQ.includes('chiefs')) return "The Kansas City Chiefs use Isiah Pacheco as their primary running back, with Clyde Edwards-Helaire also in the backfield.";
                     }
-                    
-                    if (lowerQ.includes('playoff') || lowerQ.includes('standings')) {
-                        return "I'd need to check the current NFL standings for you! The playoff picture changes weekly during the season. In a live version, I could get you the real-time standings from the NFL.";
+
+                    // Standings and records
+                    if (lowerQ.includes('standings') || lowerQ.includes('record')) {
+                        return "NFL standings change weekly during the season! Each conference (AFC and NFC) has 4 divisions with 4 teams each. You can find the most current standings at NFL.com or ESPN.com - they update after every game with wins, losses, and playoff positioning.";
                     }
-                    
-                    if (lowerQ.includes('schedule') || lowerQ.includes('next game')) {
-                        return "I'd love to get you the current NFL schedule! In the live version, I could tell you exactly when any team is playing next and what channel the game is on.";
+
+                    // Schedule questions
+                    if (lowerQ.includes('schedule') || lowerQ.includes('when') || lowerQ.includes('next game')) {
+                        return "NFL games are typically played on Sundays, with some Monday Night Football and Thursday Night Football games. For specific team schedules and game times, I recommend checking NFL.com, ESPN.com, or your team's official website for the most up-to-date information.";
                     }
-                    
-                    return "Great question about current NFL info! In this demo, I'm showing you how I'd search for live information. The real version would connect to NFL databases to give you up-to-the-minute information about any team, player, or game!";
-                    
+
+                    // Playoff information
+                    if (lowerQ.includes('playoff')) {
+                        return "The NFL playoffs include 14 teams total - 7 from each conference (AFC and NFC). The playoffs start in January with Wild Card weekend, followed by Divisional rounds, Conference Championships, and finally the Super Bowl. The #1 seed in each conference gets a bye week.";
+                    }
+
+                    return "I'd be happy to help you find that information! For the most current NFL player information, team rosters, and statistics, I recommend checking NFL.com or ESPN.com. They have up-to-date rosters, depth charts, and player stats that are updated regularly.";
+
                 } catch (error) {
-                    return "I'm having trouble getting the latest NFL information right now, but I can still help you with football rules and basics!";
+                    return "I'm having trouble searching right now, but I can still help with NFL rules and general football questions!";
                 }
             };
 
-            const getBasicAnswer = (question) => {
+            const extractSearchTerms = (question) => {
+                const lowerQ = question.toLowerCase();
+                const teams = ['chiefs', 'cowboys', 'patriots', 'steelers', 'packers', 'jets', 'bills', 'dolphins'];
+                const positions = ['quarterback', 'qb', 'running back', 'rb', 'wide receiver', 'wr'];
+                
+                let terms = [];
+                teams.forEach(team => { if (lowerQ.includes(team)) terms.push(team); });
+                positions.forEach(pos => { if (lowerQ.includes(pos)) terms.push(pos); });
+                
+                return terms.join(' ');
+            };
+
+            const getAnswer = async (question) => {
                 const lowerQ = question.toLowerCase();
                 
-                for (const [key, answer] of Object.entries(nflBasics)) {
+                // Check if it needs current NFL info (players, teams, current season)
+                const needsCurrentInfo = [
+                    'quarterback', 'qb', 'running back', 'rb', 'wide receiver', 'wr',
+                    'roster', 'starting', 'who is', 'who are', 'record', 'standings',
+                    'schedule', 'next game', 'when', 'current', 'this season'
+                ].some(keyword => lowerQ.includes(keyword));
+
+                if (needsCurrentInfo) {
+                    return await searchNFLInfo(question);
+                }
+
+                // Check knowledge base for rules and basic concepts
+                for (const [key, answer] of Object.entries(nflKnowledge)) {
                     if (lowerQ.includes(key)) return answer;
                 }
-                
-                if (lowerQ.includes('long') && lowerQ.includes('game')) return nflBasics.quarters;
-                if (lowerQ.includes('worth') && lowerQ.includes('touchdown')) return nflBasics.touchdown;
-                if (lowerQ.includes('how many') && lowerQ.includes('player')) return nflBasics.players;
-                if (lowerQ.includes('difference') && lowerQ.includes('offense')) return nflBasics.offense;
-                
-                return "That's a great question, Jackie! I can help with both NFL basics (like rules, scoring, and how the game works) and current information (like who's playing, team records, and schedules). Feel free to ask me anything! 🏈";
+
+                // Pattern matching for common questions
+                if (lowerQ.includes('long') && lowerQ.includes('game')) return nflKnowledge.quarters;
+                if (lowerQ.includes('worth') && lowerQ.includes('touchdown')) return nflKnowledge.touchdown;
+                if (lowerQ.includes('how many') && lowerQ.includes('player')) return nflKnowledge.players;
+                if (lowerQ.includes('difference') && (lowerQ.includes('offense') || lowerQ.includes('defense'))) {
+                    return "The offense is the team that has possession of the ball and is trying to score points by advancing toward the end zone. The defense is the team trying to stop them and get the ball back. When possession changes, the teams switch roles.";
+                }
+
+                return "Great question, Jackie! I can help with NFL rules, player positions, scoring, and current team information. Try asking about specific rules, players, or teams - or check out the Rules section for detailed explanations of how football works!";
             };
 
             const handleSubmit = async (question) => {
@@ -131,30 +293,8 @@
                 setIsLoading(true);
                 
                 try {
-                    let answer;
-                    
-                    if (needsCurrentInfo(question)) {
-                        setMessages(prev => [...prev, { 
-                            type: 'assistant', 
-                            content: "🔍 Let me search for the latest NFL information for you, Jackie..."
-                        }]);
-                        
-                        answer = await searchNFLInfo(question);
-                    } else {
-                        await new Promise(resolve => setTimeout(resolve, 500));
-                        answer = getBasicAnswer(question);
-                    }
-                    
-                    setMessages(prev => {
-                        const newMessages = [...prev];
-                        if (needsCurrentInfo(question)) {
-                            newMessages[newMessages.length - 1] = { type: 'assistant', content: answer };
-                        } else {
-                            newMessages.push({ type: 'assistant', content: answer });
-                        }
-                        return newMessages;
-                    });
-                    
+                    const answer = await getAnswer(question);
+                    setMessages(prev => [...prev, { type: 'assistant', content: answer }]);
                 } catch (error) {
                     setMessages(prev => [...prev, { 
                         type: 'assistant', 
@@ -166,8 +306,120 @@
                 setInputValue('');
             };
 
-            const handleQuickQuestion = (question) => {
-                handleSubmit(question);
+            const renderChatTab = () => {
+                return e('div', null,
+                    e('div', { className: 'p-6 bg-white shadow-sm' },
+                        e('h2', { className: 'text-lg font-semibold text-gray-800 mb-4' }, 'Ask me anything about football:'),
+                        e('div', { className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3' },
+                            ...commonQuestions.map((question, index) => 
+                                e('button', {
+                                    key: index,
+                                    onClick: () => handleSubmit(question),
+                                    className: 'text-left p-4 bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 rounded-xl border-2 border-blue-200 hover:border-blue-300 transition-all duration-200 text-sm text-blue-800 font-medium shadow-sm hover:shadow-md'
+                                }, question)
+                            )
+                        )
+                    ),
+                    
+                    e('div', { className: 'p-6' },
+                        e('div', { className: 'max-w-4xl mx-auto' },
+                            e('div', { className: 'chat-scroll space-y-4 mb-6 bg-gray-50 rounded-2xl p-4' },
+                                ...messages.map((message, index) => 
+                                    e('div', { 
+                                        key: index, 
+                                        className: `flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}` 
+                                    },
+                                        e('div', { 
+                                            className: `max-w-md px-5 py-4 rounded-2xl shadow-md ${
+                                                message.type === 'user' 
+                                                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' 
+                                                    : 'bg-white text-gray-800 border border-gray-200'
+                                            }` 
+                                        },
+                                            message.type === 'assistant' && e('div', { className: 'flex items-center gap-2 mb-2' },
+                                                e('div', { className: 'w-4 h-4 rounded-full bg-blue-600' }),
+                                                e('span', { className: 'text-sm font-medium text-blue-600' }, 'NFL Helper')
+                                            ),
+                                            e('p', { className: 'leading-relaxed whitespace-pre-line' }, message.content)
+                                        )
+                                    )
+                                )
+                            ),
+                            
+                            e('div', { className: 'bg-white rounded-2xl shadow-lg border border-gray-200 p-6' },
+                                e('div', { className: 'flex gap-4' },
+                                    e('input', {
+                                        type: 'text',
+                                        value: inputValue,
+                                        onChange: (ev) => setInputValue(ev.target.value),
+                                        onKeyPress: (ev) => ev.key === 'Enter' && handleSubmit(inputValue),
+                                        placeholder: 'Ask about players, rules, teams, or anything football...',
+                                        disabled: isLoading,
+                                        className: 'flex-1 px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 placeholder-gray-500'
+                                    }),
+                                    e('button', {
+                                        onClick: () => handleSubmit(inputValue),
+                                        disabled: isLoading || !inputValue.trim(),
+                                        className: 'px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-medium shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed'
+                                    }, isLoading ? 'Thinking...' : 'Ask')
+                                )
+                            )
+                        )
+                    )
+                );
+            };
+
+            const renderRulesTab = () => {
+                return e('div', { className: 'p-6' },
+                    e('div', { className: 'max-w-4xl mx-auto' },
+                        e('h2', { className: 'text-2xl font-bold text-gray-800 mb-6' }, 'NFL Rules & Basics'),
+                        e('div', { className: 'rules-scroll space-y-6' },
+                            ...nflRules.map((rule, index) => 
+                                e('div', { 
+                                    key: index, 
+                                    className: 'bg-white rounded-2xl shadow-lg border border-gray-200 p-6' 
+                                },
+                                    e('h3', { className: 'text-xl font-semibold text-blue-600 mb-4' }, rule.title),
+                                    e('div', { className: 'text-gray-700 leading-relaxed whitespace-pre-line' }, rule.content)
+                                )
+                            )
+                        )
+                    )
+                );
+            };
+
+            const renderResourcesTab = () => {
+                return e('div', { className: 'p-6' },
+                    e('div', { className: 'max-w-4xl mx-auto' },
+                        e('h2', { className: 'text-2xl font-bold text-gray-800 mb-6' }, 'Helpful NFL Resources'),
+                        e('div', { className: 'grid grid-cols-1 md:grid-cols-2 gap-6' },
+                            ...helpfulResources.map((resource, index) => 
+                                e('div', { 
+                                    key: index, 
+                                    className: 'bg-white rounded-2xl shadow-lg border border-gray-200 p-6' 
+                                },
+                                    e('h3', { className: 'text-xl font-semibold text-blue-600 mb-3' }, resource.title),
+                                    e('p', { className: 'text-gray-700 mb-4' }, resource.description),
+                                    e('a', { 
+                                        href: resource.url, 
+                                        target: '_blank',
+                                        className: 'inline-block px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-medium'
+                                    }, 'Visit Site →')
+                                )
+                            )
+                        ),
+                        e('div', { className: 'mt-8 bg-blue-50 rounded-2xl p-6 border-2 border-blue-200' },
+                            e('h3', { className: 'text-xl font-semibold text-blue-600 mb-3' }, 'Quick Tips for Following Football:'),
+                            e('ul', { className: 'text-gray-700 space-y-2' },
+                                e('li', null, '📱 Download your favorite team\'s official app for news and schedules'),
+                                e('li', null, '📺 Games are usually on Sundays at 1 PM and 4:25 PM ET, plus Sunday/Monday nights'),
+                                e('li', null, '🏈 Fantasy football is a fun way to learn about players across the league'),
+                                e('li', null, '📊 RedZone channel shows highlights from all Sunday games happening simultaneously'),
+                                e('li', null, '🎯 Focus on learning one team well first, then expand to others')
+                            )
+                        )
+                    )
+                );
             };
 
             return e('div', { className: 'min-h-screen bg-gradient-to-br from-blue-50 to-purple-50' },
@@ -177,69 +429,41 @@
                         e('h1', { className: 'text-3xl font-bold' }, 'NFL Helper for Jackie'),
                         e('div', { className: 'text-pink-200 text-2xl' }, '❤️')
                     ),
-                    e('p', { className: 'text-blue-100 text-lg' }, 'Your personal guide to understanding football! Ask me anything! 🏈')
+                    e('p', { className: 'text-blue-100 text-lg' }, 'Your complete guide to understanding football! 🏈')
                 ),
-                
-                e('div', { className: 'p-6 bg-white shadow-sm' },
-                    e('h2', { className: 'text-lg font-semibold text-gray-800 mb-4' }, 'Quick Questions to Get Started:'),
-                    e('div', { className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3' },
-                        ...commonQuestions.map((question, index) => 
-                            e('button', {
-                                key: index,
-                                onClick: () => handleQuickQuestion(question),
-                                className: 'text-left p-4 bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 rounded-xl border-2 border-blue-200 hover:border-blue-300 transition-all duration-200 text-sm text-blue-800 font-medium shadow-sm hover:shadow-md'
-                            }, question)
-                        )
+
+                // Tabs
+                e('div', { className: 'bg-white shadow-sm' },
+                    e('div', { className: 'flex justify-center space-x-1 p-4' },
+                        e('button', {
+                            onClick: () => setActiveTab('chat'),
+                            className: `tab-button px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+                                activeTab === 'chat' ? 'active text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            }`
+                        }, '💬 Ask Questions'),
+                        e('button', {
+                            onClick: () => setActiveTab('rules'),
+                            className: `tab-button px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+                                activeTab === 'rules' ? 'active text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            }`
+                        }, '📖 Rules Guide'),
+                        e('button', {
+                            onClick: () => setActiveTab('resources'),
+                            className: `tab-button px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+                                activeTab === 'resources' ? 'active text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            }`
+                        }, '🔗 Helpful Links')
                     )
                 ),
-                
-                e('div', { className: 'p-6' },
-                    e('div', { className: 'max-w-4xl mx-auto' },
-                        e('div', { className: 'chat-scroll space-y-4 mb-6' },
-                            ...messages.map((message, index) => 
-                                e('div', { 
-                                    key: index, 
-                                    className: `flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}` 
-                                },
-                                    e('div', { 
-                                        className: `max-w-md px-5 py-4 rounded-2xl shadow-md ${
-                                            message.type === 'user' 
-                                                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' 
-                                                : 'bg-white text-gray-800 border border-gray-200'
-                                        }` 
-                                    },
-                                        message.type === 'assistant' && e('div', { className: 'flex items-center gap-2 mb-2' },
-                                            e('div', { className: 'w-4 h-4 rounded-full bg-blue-600' }),
-                                            e('span', { className: 'text-sm font-medium text-blue-600' }, 'NFL Helper')
-                                        ),
-                                        e('p', { className: 'leading-relaxed' }, message.content)
-                                    )
-                                )
-                            )
-                        ),
-                        
-                        e('div', { className: 'bg-white rounded-2xl shadow-lg border border-gray-200 p-6' },
-                            e('div', { className: 'flex gap-4' },
-                                e('input', {
-                                    type: 'text',
-                                    value: inputValue,
-                                    onChange: (ev) => setInputValue(ev.target.value),
-                                    onKeyPress: (ev) => ev.key === 'Enter' && handleSubmit(inputValue),
-                                    placeholder: 'Ask Jackie anything about football...',
-                                    disabled: isLoading,
-                                    className: 'flex-1 px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 placeholder-gray-500'
-                                }),
-                                e('button', {
-                                    onClick: () => handleSubmit(inputValue),
-                                    disabled: isLoading || !inputValue.trim(),
-                                    className: 'px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-medium shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed'
-                                }, isLoading ? 'Thinking...' : 'Ask')
-                            ),
-                            e('p', { className: 'text-sm text-gray-500 mt-4 text-center' },
-                                'Made with ❤️ to help Jackie enjoy football with the family'
-                            )
-                        )
-                    )
+
+                // Tab Content
+                activeTab === 'chat' && renderChatTab(),
+                activeTab === 'rules' && renderRulesTab(),
+                activeTab === 'resources' && renderResourcesTab(),
+
+                // Footer
+                e('div', { className: 'p-6 text-center text-gray-500 text-sm' },
+                    'Made with ❤️ to help Jackie enjoy football with the family'
                 )
             );
         }
