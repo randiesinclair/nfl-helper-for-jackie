@@ -19,25 +19,6 @@
             max-height: 50vh; 
             overflow-y: auto; 
         }
-        .rules-scroll {
-            max-height: 60vh;
-            overflow-y: auto;
-        }
-        .football-icon { 
-            width: 32px; 
-            height: 32px; 
-            background: #ffffff; 
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-weight: bold; 
-            color: #3b82f6; 
-            font-size: 16px;
-        }
-        .tab-button {
-            transition: all 0.2s;
-        }
         .tab-button.active {
             background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
             color: white;
@@ -55,227 +36,140 @@
             const [messages, setMessages] = useState([
                 {
                     type: 'assistant',
-                    content: "Hi Jackie! 👋 I'm your NFL helper! Ask me about current players, teams, rules, or anything football-related. I can search for the latest information and help you understand the game better!"
+                    content: "Hi Jackie! 👋 I'm your NFL helper! Ask me about current players, teams, rules, or anything football-related!"
                 }
             ]);
             const [inputValue, setInputValue] = useState('');
             const [isLoading, setIsLoading] = useState(false);
 
-            const commonQuestions = [
-                "Who is the quarterback for the Chiefs?",
-                "What does 'first down' mean?",
-                "How long is a football game?",
-                "What's a touchdown worth?",
-                "Who are the running backs for the Jets?",
-                "Explain the offside rule"
-            ];
-
-            const teamNameToId = {
-                'jets': '20', 'chiefs': '12', 'cowboys': '6', 'bills': '2', 'packers': '9',
-                'patriots': '17', 'steelers': '23', 'ravens': '33', 'browns': '5',
-                'bengals': '4', 'titans': '10', 'colts': '11', 'jaguars': '30',
-                'texans': '34', 'broncos': '7', 'chargers': '24', 'raiders': '13',
-                'dolphins': '15', 'giants': '19', 'eagles': '21', 'commanders': '28',
-                'bears': '3', 'lions': '8', 'vikings': '16', 'cardinals': '22',
-                'rams': '14', 'seahawks': '26', 'niners': '25', '49ers': '25',
-                'saints': '18', 'falcons': '1', 'panthers': '29', 'bucs': '27',
-                'buccaneers': '27'
+            const teamMap = {
+                'steelers': '23', 'chiefs': '12', 'cowboys': '6', 'raiders': '13',
+                'jets': '20', 'bills': '2', 'patriots': '17', 'dolphins': '15',
+                'ravens': '33', 'bengals': '4', 'browns': '5', 'titans': '10',
+                'colts': '11', 'jaguars': '30', 'texans': '34', 'broncos': '7',
+                'chargers': '24', 'packers': '9', 'bears': '3', 'lions': '8',
+                'vikings': '16', 'giants': '19', 'eagles': '21', 'commanders': '28',
+                'cardinals': '22', 'rams': '14', 'seahawks': '26', '49ers': '25',
+                'saints': '18', 'falcons': '1', 'panthers': '29', 'bucs': '27'
             };
 
-            const nflRules = [
-                {
-                    title: "Basic Scoring",
-                    content: "• Touchdown: 6 points (getting the ball into the end zone)\n• Extra Point: 1 point (kick after touchdown)\n• Two-Point Conversion: 2 points (play from 2-yard line after touchdown)\n• Field Goal: 3 points (kick through goalposts)\n• Safety: 2 points (tackle opponent in their end zone)"
-                },
-                {
-                    title: "Game Structure", 
-                    content: "• 4 quarters, 15 minutes each (60 minutes total game time)\n• 12-minute halftime break\n• Each team gets 3 timeouts per half\n• Clock stops for incomplete passes, out of bounds, timeouts\n• Overtime: 10 minutes in regular season, 15 in playoffs"
-                },
-                {
-                    title: "Downs and Possession",
-                    content: "• Teams get 4 attempts (downs) to advance 10 yards\n• Success = new set of 4 downs (first down)\n• Failure = other team gets the ball\n• Can punt on 4th down to give opponent worse field position\n• Can attempt field goal if close enough to goalposts"
-                },
-                {
-                    title: "Player Positions - Offense",
-                    content: "• Quarterback (QB): Throws passes, leads the offense\n• Running Backs (RB): Carry the ball, catch passes\n• Wide Receivers (WR): Catch passes downfield\n• Tight Ends (TE): Block and catch passes\n• Offensive Line: 5 players who protect the QB and create running lanes"
-                },
-                {
-                    title: "Player Positions - Defense", 
-                    content: "• Defensive Line: Rush the quarterback, stop running plays\n• Linebackers (LB): Cover middle of field, rush QB, stop runs\n• Cornerbacks (CB): Cover wide receivers\n• Safeties (S): Deep coverage, help against passes and runs"
-                },
-                {
-                    title: "Common Penalties",
-                    content: "• False Start: Offensive player moves before snap (5 yards)\n• Holding: Illegally grabbing opponent (10 yards)\n• Pass Interference: Illegally preventing catch (spot foul)\n• Offside: Player crosses line before snap (5 yards)\n• Roughing the Passer: Hitting QB after throw (15 yards)\n• Facemask: Grabbing opponent's helmet (15 yards)"
-                }
-            ];
-
-            const helpfulResources = [
-                {
-                    title: "NFL Official Website",
-                    url: "https://www.nfl.com",
-                    description: "Official scores, standings, news, and player stats"
-                },
-                {
-                    title: "ESPN NFL",
-                    url: "https://www.espn.com/nfl/",
-                    description: "News, analysis, fantasy football, and game coverage"
-                },
-                {
-                    title: "NFL Beginner's Guide",
-                    url: "https://www.nfl.com/news/nfl-101",
-                    description: "Perfect for understanding football basics"
-                }
-            ];
-
-            const nflKnowledge = {
-                "touchdown": "A touchdown is worth 6 points and happens when a team gets the ball into the opponent's end zone (the colored area at each end of the field). After scoring a touchdown, the team can kick for 1 extra point or try a 2-point conversion play.",
-                "field goal": "A field goal is worth 3 points. The team kicks the ball through the yellow goalposts from anywhere on the field. Teams often attempt field goals on 4th down when they're close enough but can't get a touchdown.",
-                "quarters": "A football game has 4 quarters, each lasting 15 minutes of game time. With timeouts, commercial breaks, and clock stoppages, games usually last about 3 hours total.",
-                "first down": "A first down means a team has earned a fresh set of 4 attempts (called 'downs') to advance the ball 10 more yards. Teams must gain 10 yards within 4 plays to keep possession of the ball.",
-                "quarterback": "The quarterback (QB) is the field general of the offense. They take the snap from the center, decide whether to hand off, throw, or run with the ball. They call plays and are usually the team leader.",
-                "running back": "Running backs (RBs) are the main ball carriers. They take handoffs from the quarterback and try to run through or around the defense. They also catch passes and help block.",
-                "players": "Each team has 11 players on the field at any time. The total roster can have up to 53 players, but only 11 from each team are allowed on the field during any play."
-            };
-
-            const getTeamFromQuestion = (question) => {
-                const lowerQ = question.toLowerCase();
-                for (const teamName of Object.keys(teamNameToId)) {
-                    if (lowerQ.includes(teamName)) {
-                        return { name: teamName, id: teamNameToId[teamName] };
+            const getTeamInfo = (question) => {
+                const lower = question.toLowerCase();
+                for (const [name, id] of Object.entries(teamMap)) {
+                    if (lower.includes(name)) {
+                        return { name, id };
                     }
                 }
                 return null;
             };
 
-            const searchNFLInfo = async (question) => {
+            const fetchRosterInfo = async (question) => {
+                const team = getTeamInfo(question);
+                if (!team) return "I couldn't identify which team you're asking about. Try asking about a specific team like 'Chiefs' or 'Cowboys'.";
+
                 try {
-                    const lowerQ = question.toLowerCase();
-                    const team = getTeamFromQuestion(question);
+                    const url = `https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/${team.id}/roster`;
+                    const response = await fetch(url);
+                    const data = await response.json();
 
-                    if (team && (lowerQ.includes('quarterback') || lowerQ.includes('qb') || 
-                                lowerQ.includes('running back') || lowerQ.includes('rb') ||
-                                lowerQ.includes('wide receiver') || lowerQ.includes('wr'))) {
+                    if (!data.athletes || data.athletes.length === 0) {
+                        return `I found the team but no roster data is available right now. Try checking ESPN.com directly.`;
+                    }
+
+                    const lower = question.toLowerCase();
+                    let targetPos = '';
+                    let posName = '';
+
+                    if (lower.includes('quarterback') || lower.includes('qb')) {
+                        targetPos = 'QB';
+                        posName = 'quarterback';
+                    } else if (lower.includes('running back') || lower.includes('rb')) {
+                        targetPos = 'RB';
+                        posName = 'running back';
+                    } else if (lower.includes('wide receiver') || lower.includes('wr')) {
+                        targetPos = 'WR';
+                        posName = 'wide receiver';
+                    }
+
+                    const matchingPlayers = data.athletes.filter(player => {
+                        if (!player.position) return false;
+                        const pos = player.position.abbreviation || player.position.name || '';
+                        return pos.toUpperCase().includes(targetPos);
+                    });
+
+                    if (matchingPlayers.length > 0) {
+                        const teamName = data.team.displayName || team.name;
                         
-                        const response = await fetch(`https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/${team.id}/roster`);
-                        
-                        if (!response.ok) {
-                            throw new Error('API request failed');
-                        }
-                        
-                        const data = await response.json();
-                        
-                        let targetPositions = [];
-                        let positionName = '';
-                        
-                        if (lowerQ.includes('quarterback') || lowerQ.includes('qb')) {
-                            targetPositions = ['QB', 'Quarterback'];
-                            positionName = 'quarterback';
-                        }
-                        if (lowerQ.includes('running back') || lowerQ.includes('rb')) {
-                            targetPositions = ['RB', 'Running Back', 'HB', 'Halfback', 'FB', 'Fullback'];
-                            positionName = 'running back';
-                        }
-                        if (lowerQ.includes('wide receiver') || lowerQ.includes('wr')) {
-                            targetPositions = ['WR', 'Wide Receiver'];
-                            positionName = 'wide receiver';
-                        }
-                        
-                        // More flexible position matching
-                        const players = data.athletes.filter(player => {
-                            if (!player.position) return false;
-                            
-                            const playerPos = player.position.abbreviation || player.position.name || '';
-                            return targetPositions.some(pos => 
-                                playerPos.toUpperCase().includes(pos.toUpperCase()) ||
-                                pos.toUpperCase().includes(playerPos.toUpperCase())
-                            );
-                        });
-                        
-                        if (players.length > 0) {
-                            const teamName = data.team.displayName;
-                            
-                            if (positionName === 'quarterback') {
-                                const starter = players.find(p => p.starter) || players[0];
-                                return `${starter.fullName} is the starting quarterback for the ${teamName}. He wears jersey #${starter.jersey || 'N/A'}.`;
-                            } else if (positionName === 'running back') {
-                                const backs = players.slice(0, 3).map(p => 
-                                    `${p.fullName} (#${p.jersey || 'N/A'})`
-                                );
-                                return `The ${teamName}'s running backs include: ${backs.join(', ')}.`;
-                            } else if (positionName === 'wide receiver') {
-                                const receivers = players.slice(0, 4).map(p => 
-                                    `${p.fullName} (#${p.jersey || 'N/A'})`
-                                );
-                                return `The ${teamName}'s wide receivers include: ${receivers.join(', ')}.`;
-                            }
+                        if (targetPos === 'QB') {
+                            const qb = matchingPlayers[0];
+                            const name = qb.displayName || qb.fullName || qb.name || 'Unknown Player';
+                            const jersey = qb.jersey || 'Unknown';
+                            return `${name} is the quarterback for the ${teamName}. He wears #${jersey}.`;
                         } else {
-                            // Fallback: try to get some player info to show the API is working
-                            if (data.athletes && data.athletes.length > 0) {
-                                const samplePositions = data.athletes.slice(0, 5).map(p => 
-                                    p.position ? (p.position.abbreviation || p.position.name) : 'Unknown'
-                                ).join(', ');
-                                return `I found the ${data.team.displayName} roster with ${data.athletes.length} players, but I'm having trouble finding ${positionName}s. The available positions include: ${samplePositions}. For the complete roster, check ESPN.com.`;
-                            } else {
-                                return `I'm having trouble accessing the ${data.team ? data.team.displayName : team.name} roster right now. Please try again or check ESPN.com for current roster information.`;
-                            }
+                            const players = matchingPlayers.slice(0, 3).map(p => {
+                                const name = p.displayName || p.fullName || p.name || 'Unknown';
+                                const jersey = p.jersey || '?';
+                                return `${name} (#${jersey})`;
+                            });
+                            return `The ${teamName} ${posName}s include: ${players.join(', ')}.`;
                         }
+                    } else {
+                        return `I found the ${data.team.displayName} roster but no ${posName}s listed. The roster might be updating. Try ESPN.com for the most current information.`;
                     }
-
-                    if (lowerQ.includes('standings') || lowerQ.includes('record')) {
-                        return "The current NFL season standings are updated weekly! There are 32 teams divided into AFC and NFC conferences, each with 4 divisions. The season runs from September through January, with playoffs in January and the Super Bowl in February. Check ESPN.com for the most current standings and playoff picture.";
-                    }
-
-                    if (lowerQ.includes('schedule') || lowerQ.includes('when') || lowerQ.includes('next game')) {
-                        return "NFL games are typically played on Sundays at 1:00 PM and 4:25 PM ET, with Sunday Night Football at 8:20 PM ET. Monday Night Football is at 8:15 PM ET. Thursday Night Football starts at 8:15 PM ET. For specific team schedules, check ESPN.com or NFL.com.";
-                    }
-
-                    return "I can help you find current NFL information! Ask me about specific players, teams, or positions, and I'll search ESPN's database for you.";
 
                 } catch (error) {
-                    console.error('API Error:', error);
-                    return "I'm having trouble connecting to the NFL database right now, but I can still help you with football rules and basic questions!";
+                    return `I'm having trouble accessing roster information right now. You can check current rosters at ESPN.com or NFL.com.`;
                 }
             };
 
-            const getAnswer = async (question) => {
-                const lowerQ = question.toLowerCase();
-                
-                const needsCurrentInfo = [
-                    'quarterback', 'qb', 'running back', 'rb', 'wide receiver', 'wr',
-                    'roster', 'starting', 'who is', 'who are', 'record', 'standings',
-                    'schedule', 'next game', 'when', 'current', 'this season'
-                ].some(keyword => lowerQ.includes(keyword));
+            const basicAnswers = {
+                'touchdown': "A touchdown is worth 6 points and happens when a team gets the ball into the opponent's end zone.",
+                'field goal': "A field goal is worth 3 points when the team kicks the ball through the yellow goalposts.",
+                'first down': "A first down means a team gets 4 new attempts to advance the ball 10 yards.",
+                'quarters': "A football game has 4 quarters, each 15 minutes long (60 minutes total game time).",
+                'players': "Each team has 11 players on the field at any time.",
+                'quarterback': "The quarterback (QB) leads the offense, throws passes, and makes play decisions."
+            };
 
-                if (needsCurrentInfo) {
-                    return await searchNFLInfo(question);
+            const handleQuestion = async (question) => {
+                const lower = question.toLowerCase();
+                
+                // Check if asking about current players/rosters
+                if ((lower.includes('who is') || lower.includes('who are')) && 
+                    (lower.includes('quarterback') || lower.includes('qb') || 
+                     lower.includes('running back') || lower.includes('rb') ||
+                     lower.includes('wide receiver') || lower.includes('wr'))) {
+                    return await fetchRosterInfo(question);
                 }
 
-                for (const key of Object.keys(nflKnowledge)) {
-                    if (lowerQ.includes(key)) {
-                        return nflKnowledge[key];
+                // Check basic knowledge
+                for (const [key, answer] of Object.entries(basicAnswers)) {
+                    if (lower.includes(key)) {
+                        return answer;
                     }
                 }
 
-                if (lowerQ.includes('long') && lowerQ.includes('game')) return nflKnowledge.quarters;
-                if (lowerQ.includes('worth') && lowerQ.includes('touchdown')) return nflKnowledge.touchdown;
-                if (lowerQ.includes('how many') && lowerQ.includes('player')) return nflKnowledge.players;
+                // Pattern matching
+                if (lower.includes('long') && lower.includes('game')) return basicAnswers.quarters;
+                if (lower.includes('worth') && lower.includes('touchdown')) return basicAnswers.touchdown;
+                if (lower.includes('how many') && lower.includes('player')) return basicAnswers.players;
 
-                return "Great question, Jackie! I can help with NFL rules, player positions, scoring, and current team information. Try asking about specific rules, players, or teams - or check out the Rules section for detailed explanations!";
+                return "Great question, Jackie! I can help with NFL rules, current player information, and team rosters. Try asking about specific players or check out the Rules section!";
             };
 
-            const handleSubmit = async (question) => {
+            const submitQuestion = async (question) => {
                 if (!question.trim() || isLoading) return;
                 
                 setMessages(prev => [...prev, { type: 'user', content: question }]);
                 setIsLoading(true);
                 
                 try {
-                    const answer = await getAnswer(question);
+                    const answer = await handleQuestion(question);
                     setMessages(prev => [...prev, { type: 'assistant', content: answer }]);
                 } catch (error) {
                     setMessages(prev => [...prev, { 
                         type: 'assistant', 
-                        content: "I'm having a little trouble right now, but I'm still here to help with your football questions, Jackie!" 
+                        content: "I'm having trouble right now, but I'm here to help with your football questions!" 
                     }]);
                 }
                 
@@ -283,151 +177,151 @@
                 setInputValue('');
             };
 
-            const renderChatTab = () => {
-                return e('div', null,
-                    e('div', { className: 'p-6 bg-white shadow-sm' },
-                        e('h2', { className: 'text-lg font-semibold text-gray-800 mb-4' }, 'Ask me anything about football:'),
-                        e('div', { className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3' },
-                            ...commonQuestions.map((question, index) => 
-                                e('button', {
-                                    key: index,
-                                    onClick: () => handleSubmit(question),
-                                    className: 'text-left p-4 bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 rounded-xl border-2 border-blue-200 hover:border-blue-300 transition-all duration-200 text-sm text-blue-800 font-medium shadow-sm hover:shadow-md'
-                                }, question)
+            const quickQuestions = [
+                "Who is the quarterback for the Chiefs?",
+                "What does first down mean?",
+                "How long is a football game?",
+                "Who are the running backs for the Cowboys?",
+                "What's a touchdown worth?",
+                "How many players are on the field?"
+            ];
+
+            const rulesData = [
+                {
+                    title: "Basic Scoring",
+                    content: "• Touchdown: 6 points\n• Extra Point: 1 point\n• Field Goal: 3 points\n• Safety: 2 points"
+                },
+                {
+                    title: "Game Structure",
+                    content: "• 4 quarters, 15 minutes each\n• 12-minute halftime\n• 3 timeouts per team per half"
+                },
+                {
+                    title: "Downs System",
+                    content: "• Teams get 4 downs to advance 10 yards\n• Success = new set of 4 downs\n• Can punt on 4th down"
+                }
+            ];
+
+            const resources = [
+                { title: "NFL.com", url: "https://www.nfl.com", desc: "Official NFL website" },
+                { title: "ESPN NFL", url: "https://www.espn.com/nfl/", desc: "News and stats" }
+            ];
+
+            // Render functions
+            const renderChat = () => e('div', null,
+                e('div', { className: 'p-6 bg-white' },
+                    e('h2', { className: 'text-lg font-bold mb-4' }, 'Ask me anything about football:'),
+                    e('div', { className: 'grid grid-cols-1 md:grid-cols-2 gap-3' },
+                        ...quickQuestions.map((q, i) => 
+                            e('button', {
+                                key: i,
+                                onClick: () => submitQuestion(q),
+                                className: 'p-3 bg-blue-50 hover:bg-blue-100 rounded-lg text-left text-sm border border-blue-200'
+                            }, q)
+                        )
+                    )
+                ),
+                e('div', { className: 'p-6' },
+                    e('div', { className: 'chat-scroll space-y-4 mb-6 bg-gray-50 rounded-lg p-4' },
+                        ...messages.map((msg, i) => 
+                            e('div', { 
+                                key: i, 
+                                className: `flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}` 
+                            },
+                                e('div', { 
+                                    className: `max-w-md p-4 rounded-lg ${
+                                        msg.type === 'user' 
+                                            ? 'bg-blue-600 text-white' 
+                                            : 'bg-white border'
+                                    }` 
+                                },
+                                    msg.type === 'assistant' && e('div', { className: 'text-xs text-blue-600 mb-1' }, 'NFL Helper'),
+                                    e('p', null, msg.content)
+                                )
                             )
                         )
                     ),
-                    
-                    e('div', { className: 'p-6' },
-                        e('div', { className: 'max-w-4xl mx-auto' },
-                            e('div', { className: 'chat-scroll space-y-4 mb-6 bg-gray-50 rounded-2xl p-4' },
-                                ...messages.map((message, index) => 
-                                    e('div', { 
-                                        key: index, 
-                                        className: `flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}` 
-                                    },
-                                        e('div', { 
-                                            className: `max-w-md px-5 py-4 rounded-2xl shadow-md ${
-                                                message.type === 'user' 
-                                                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' 
-                                                    : 'bg-white text-gray-800 border border-gray-200'
-                                            }` 
-                                        },
-                                            message.type === 'assistant' && e('div', { className: 'flex items-center gap-2 mb-2' },
-                                                e('div', { className: 'w-4 h-4 rounded-full bg-blue-600' }),
-                                                e('span', { className: 'text-sm font-medium text-blue-600' }, 'NFL Helper')
-                                            ),
-                                            e('p', { className: 'leading-relaxed whitespace-pre-line' }, message.content)
-                                        )
-                                    )
-                                )
-                            ),
-                            
-                            e('div', { className: 'bg-white rounded-2xl shadow-lg border border-gray-200 p-6' },
-                                e('div', { className: 'flex gap-4' },
-                                    e('input', {
-                                        type: 'text',
-                                        value: inputValue,
-                                        onChange: (ev) => setInputValue(ev.target.value),
-                                        onKeyPress: (ev) => ev.key === 'Enter' && handleSubmit(inputValue),
-                                        placeholder: 'Ask about players, rules, teams, or anything football...',
-                                        disabled: isLoading,
-                                        className: 'flex-1 px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 placeholder-gray-500'
-                                    }),
-                                    e('button', {
-                                        onClick: () => handleSubmit(inputValue),
-                                        disabled: isLoading || !inputValue.trim(),
-                                        className: 'px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-medium shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed'
-                                    }, isLoading ? 'Thinking...' : 'Ask')
-                                )
-                            )
+                    e('div', { className: 'bg-white rounded-lg border p-4' },
+                        e('div', { className: 'flex gap-3' },
+                            e('input', {
+                                type: 'text',
+                                value: inputValue,
+                                onChange: (ev) => setInputValue(ev.target.value),
+                                onKeyPress: (ev) => ev.key === 'Enter' && submitQuestion(inputValue),
+                                placeholder: 'Ask about players, rules, teams...',
+                                disabled: isLoading,
+                                className: 'flex-1 p-3 border rounded focus:outline-none focus:border-blue-500'
+                            }),
+                            e('button', {
+                                onClick: () => submitQuestion(inputValue),
+                                disabled: isLoading || !inputValue.trim(),
+                                className: 'px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50'
+                            }, isLoading ? 'Thinking...' : 'Ask')
                         )
                     )
-                );
-            };
+                )
+            );
 
-            const renderRulesTab = () => {
-                return e('div', { className: 'p-6' },
-                    e('div', { className: 'max-w-4xl mx-auto' },
-                        e('h2', { className: 'text-2xl font-bold text-gray-800 mb-6' }, 'NFL Rules & Basics'),
-                        e('div', { className: 'rules-scroll space-y-6' },
-                            ...nflRules.map((rule, index) => 
-                                e('div', { 
-                                    key: index, 
-                                    className: 'bg-white rounded-2xl shadow-lg border border-gray-200 p-6' 
-                                },
-                                    e('h3', { className: 'text-xl font-semibold text-blue-600 mb-4' }, rule.title),
-                                    e('div', { className: 'text-gray-700 leading-relaxed whitespace-pre-line' }, rule.content)
-                                )
-                            )
+            const renderRules = () => e('div', { className: 'p-6' },
+                e('h2', { className: 'text-2xl font-bold mb-6' }, 'NFL Rules & Basics'),
+                e('div', { className: 'space-y-6' },
+                    ...rulesData.map((rule, i) => 
+                        e('div', { key: i, className: 'bg-white rounded-lg border p-6' },
+                            e('h3', { className: 'text-xl font-semibold text-blue-600 mb-3' }, rule.title),
+                            e('div', { className: 'whitespace-pre-line' }, rule.content)
                         )
                     )
-                );
-            };
+                )
+            );
 
-            const renderResourcesTab = () => {
-                return e('div', { className: 'p-6' },
-                    e('div', { className: 'max-w-4xl mx-auto' },
-                        e('h2', { className: 'text-2xl font-bold text-gray-800 mb-6' }, 'Helpful NFL Resources'),
-                        e('div', { className: 'grid grid-cols-1 md:grid-cols-2 gap-6' },
-                            ...helpfulResources.map((resource, index) => 
-                                e('div', { 
-                                    key: index, 
-                                    className: 'bg-white rounded-2xl shadow-lg border border-gray-200 p-6' 
-                                },
-                                    e('h3', { className: 'text-xl font-semibold text-blue-600 mb-3' }, resource.title),
-                                    e('p', { className: 'text-gray-700 mb-4' }, resource.description),
-                                    e('a', { 
-                                        href: resource.url, 
-                                        target: '_blank',
-                                        className: 'inline-block px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-medium'
-                                    }, 'Visit Site →')
-                                )
-                            )
+            const renderResources = () => e('div', { className: 'p-6' },
+                e('h2', { className: 'text-2xl font-bold mb-6' }, 'Helpful Resources'),
+                e('div', { className: 'grid gap-4' },
+                    ...resources.map((res, i) => 
+                        e('div', { key: i, className: 'bg-white rounded-lg border p-6' },
+                            e('h3', { className: 'text-xl font-semibold text-blue-600 mb-2' }, res.title),
+                            e('p', { className: 'mb-4' }, res.desc),
+                            e('a', { 
+                                href: res.url, 
+                                target: '_blank',
+                                className: 'px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700'
+                            }, 'Visit Site')
                         )
                     )
-                );
-            };
+                )
+            );
 
             return e('div', { className: 'min-h-screen bg-gradient-to-br from-blue-50 to-purple-50' },
-                e('div', { className: 'gradient-bg text-white p-6 text-center shadow-lg' },
+                e('div', { className: 'gradient-bg text-white p-6 text-center' },
                     e('div', { className: 'flex items-center justify-center gap-3 mb-3' },
-                        e('div', { className: 'football-icon' }, '🏈'),
+                        e('div', { 
+                            className: 'w-8 h-8 bg-white rounded-full flex items-center justify-center text-blue-600 font-bold' 
+                        }, '🏈'),
                         e('h1', { className: 'text-3xl font-bold' }, 'NFL Helper for Jackie'),
-                        e('div', { className: 'text-pink-200 text-2xl' }, '❤️')
+                        e('div', { className: 'text-2xl' }, '❤️')
                     ),
-                    e('p', { className: 'text-blue-100 text-lg' }, 'Your complete guide to understanding football! 🏈')
+                    e('p', { className: 'text-lg opacity-90' }, 'Your complete guide to understanding football!')
                 ),
 
-                e('div', { className: 'bg-white shadow-sm' },
-                    e('div', { className: 'flex justify-center space-x-1 p-4' },
-                        e('button', {
-                            onClick: () => setActiveTab('chat'),
-                            className: `tab-button px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
-                                activeTab === 'chat' ? 'active text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                            }`
-                        }, '💬 Ask Questions'),
-                        e('button', {
-                            onClick: () => setActiveTab('rules'),
-                            className: `tab-button px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
-                                activeTab === 'rules' ? 'active text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                            }`
-                        }, '📖 Rules Guide'),
-                        e('button', {
-                            onClick: () => setActiveTab('resources'),
-                            className: `tab-button px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
-                                activeTab === 'resources' ? 'active text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                            }`
-                        }, '🔗 Helpful Links')
+                e('div', { className: 'bg-white border-b' },
+                    e('div', { className: 'flex justify-center gap-1 p-4' },
+                        ['chat', 'rules', 'resources'].map(tab => 
+                            e('button', {
+                                key: tab,
+                                onClick: () => setActiveTab(tab),
+                                className: `tab-button px-6 py-3 rounded-lg font-medium ${
+                                    activeTab === tab ? 'active' : 'bg-gray-100 hover:bg-gray-200'
+                                }`
+                            }, tab === 'chat' ? '💬 Ask Questions' : 
+                               tab === 'rules' ? '📖 Rules Guide' : '🔗 Resources')
+                        )
                     )
                 ),
 
-                activeTab === 'chat' && renderChatTab(),
-                activeTab === 'rules' && renderRulesTab(),
-                activeTab === 'resources' && renderResourcesTab(),
+                activeTab === 'chat' ? renderChat() : 
+                activeTab === 'rules' ? renderRules() : renderResources(),
 
-                e('div', { className: 'p-6 text-center text-gray-500 text-sm' },
-                    'V17 Made with ❤️ to help Jackie enjoy football with the family'
+                e('div', { className: 'p-6 text-center text-gray-500' },
+                    'V18 Made with ❤️ to help Jackie enjoy football with the family'
                 )
             );
         }
